@@ -11,5 +11,38 @@
 
 -- SELECT * FROM film_actor;
 
+-- CREATE TABLE business (
+--     business_id INTEGER PRIMARY KEY,
+--     name TEXT NOT NULL,
+--     address TEXT NOT NULL
+-- );
+
+-- CREATE TABLE client (
+--     client_id INTEGER PRIMARY KEY,
+--     first_name TEXT NOT NULL,
+--     last_name TEXT NOT NULL,
+--     email TEXT
+-- );
+
+-- CREATE TABLE business_customer (
+--     business_id INTEGER,
+--     client_id INTEGER,
+--     PRIMARY KEY (business_id, client_id),
+--     FOREIGN KEY (business_id) REFERENCES business (business_id),
+--     FOREIGN KEY (client_id) REFERENCES client (client_id)
+-- );
+
+-- -- Insert values into business table
+-- INSERT INTO business (name, address) VALUES ('Tech Solutions', '123 Tech Street');
+-- INSERT INTO business (name, address) VALUES ('Health Plus', '456 Health Avenue');
+
+-- -- Insert values into customer table
+-- INSERT INTO client (first_name, last_name, email) VALUES ('John', 'Doe', 'john.doe@example.com');
+-- INSERT INTO client (first_name, last_name, email) VALUES ('Jane', 'Smith', 'jane.smith@example.com');
+
+-- -- Insert values into business_customer table
+-- INSERT INTO business_customer (business_id, client_id) VALUES (1, 1);
+-- INSERT INTO business_customer (business_id, client_id) VALUES (1, 2);
+-- INSERT INTO business_customer (business_id, client_id) VALUES (2, 1);
 
 
