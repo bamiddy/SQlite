@@ -7,6 +7,14 @@ CREATE TABLE student (
     PRIMARY KEY("id" AUTOINCREMENT)
 );
 
+CREATE TABLE science (
+    "id" INTEGER,
+    "subject" TEXT NOT NULL,
+    "grade" NUMERIC NOT NULL DEFAULT 0, 
+    PRIMARY KEY("id" AUTOINCREMENT)
+);
+
+
 CREATE TABLE art (
     "id" INTEGER,
     "subject" TEXT NOT NULL,
@@ -26,5 +34,22 @@ CREATE TABLE exam (
     FOREIGN KEY("art_id") REFERENCES "art"("id")
 );
 
+ALTER TABLE student
+RENAME COLUMN "subject" to "name";
+
+ALTER TABLE student
+RENAME COLUMN "grade" to "age";
+
+ALTER TABLE student
+ADD COLUMN "class" TEXT NOT NULL;
+
+
+
 CREATE TRIGGER update_exam
-AFTER INSERT ON 
+AFTER INSERT ON "student"
+BEGIN
+    INSERT INTO exam (student_id, science_id, art_id)
+    VALUES (new.id, 1, 1);
+END;
+
+

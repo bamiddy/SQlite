@@ -1,0 +1,196 @@
+-- database: ./biedronka.db
+
+
+-- SCHEMA FOR BIEDRONKA DATABASE
+
+-- CREATE TABLE customers (
+--     id INTEGER,
+--     name TEXT NOT NULL UNIQUE,
+--     city TEXT NOT NULL,
+--     zip TEXT DEFAULT NULL,
+--     PRIMARY KEY ("id" AUTOINCREMENT)
+-- );
+
+-- CREATE TABLE products (
+--     "id" INTEGER,
+--     "name" TEXT NOT NULL UNIQUE,
+--     "price" NUMERIC(10, 2) NOT NULL,
+--     PRIMARY KEY ("id" AUTOINCREMENT)
+--     );
+
+-- CREATE TABLE orders (
+--     "id" INTEGER,
+--     "customer_id" INTEGER NOT NULL,
+--     "product_id" INTEGER NOT NULL,
+--     "quantity" INTEGER NOT NULL,
+--     "date" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     PRIMARY KEY ("id" AUTOINCREMENT),
+--     FOREIGN KEY ("customer_id") REFERENCES "customers" ("id"),
+--     FOREIGN KEY ("product_id") REFERENCES "products" ("id")
+--     );
+
+-- ALTER TABLE orders
+-- UPDATE FOREIGN KEY ("customer_id") REFERENCES "customers" ("id") ON DELETE CASCADE;
+
+-- CREATE TABLE cust_depo (
+--     "id" INTEGER,
+--     "product_name" TEXT NOT NULL,
+--     "status" TEXT NOT NULL,
+--     "date" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     PRIMARY KEY ("id" AUTOINCREMENT)
+--     );
+
+
+-- CREATE TABLE pro_dep (
+--     "id" INTEGER,
+--     "product_name" TEXT NOT NULL,
+--     "status" TEXT NOT NULL,
+--     "date" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     PRIMARY KEY ("id" AUTOINCREMENT)
+--     );
+
+-- CREATE TRIGGER "pro_dep_update" 
+-- BEFORE DELETE ON "products"
+-- FOR EACH ROW
+-- BEGIN
+--     INSERT INTO pro_dep ("product_name", "status")
+--     VALUES (old.name, 'OUT OF STOCK');
+-- END;
+
+-- CREATE TRIGGER "cust_depo_update"
+-- AFTER INSERT ON "customers"
+-- FOR EACH ROW
+-- BEGIN 
+--     INSERT INTO cust_depo ("customers_name", "status")
+--     VALUES (new.name, 'NEW CUSTOMER');
+-- END;
+
+-- -- INSERTING DATA INTO TABLES
+
+-- INSERT INTO customers ("name", "city", "zip") 
+-- VALUES 
+--     ('Jan Kowalski', 'Poznań', '60-649'),
+--     ('Anna Nowak', 'Warszawa', '00-001'),
+--     ('Piotr Wiśniewski', 'Kraków', '30-001'),
+--     ('Maria Lewandowska', 'Wrocław', '50-001'),
+--     ('Tomasz Zieliński', 'Gdańsk', '80-001'),
+--     ('Katarzyna Jankowska', 'Łódź', '90-001'),
+--     ('Marek Dąbrowski', 'Szczecin', '70-001'),
+--     ('Magdalena Woźniak', 'Lublin', '20-001'),
+--     ('Robert Szymański', 'Katowice', '40-001'),
+--     ('Aleksandra Mazur', 'Rzeszów', '35-001'),
+--     ('Kamil Wójcik', 'Białystok', '15-001'),
+--     ('Agnieszka Lis', 'Bydgoszcz', '85-001'),
+--     ('Bartłomiej Pawlak', 'Gorzów Wielkopolski', '66-400'),
+--     ('Natalia Kaczmarek', 'Opole', '45-001'),
+--     ('Damian Czarnecki', 'Kielce', '25-001'),
+--     ('Elżbieta Zawadzka', 'Olsztyn', '10-001'),
+--     ('Patryk Stępień', 'Toruń', '87-100'),
+--     ('Zofia Borkowska', 'Radom', '26-600'),
+--     ('Łukasz Głowacki', 'Częstochowa', '42-200'),
+--     ('Ewa Piątek', 'Gdynia', '81-001');
+
+-- INSERT INTO products ("name", "price") 
+-- VALUES 
+--     ('Mleko 1L', 3.49),
+--     ('Chleb pszenny', 2.99),
+--     ('Masło 200g', 7.99),
+--     ('Jajka 10 szt.', 12.99),
+--     ('Ser żółty 250g', 8.49),
+--     ('Jogurt naturalny 400g', 3.99),
+--     ('Makaron 500g', 4.49),
+--     ('Ryż biały 1kg', 6.99),
+--     ('Kurczak filet 1kg', 21.99),
+--     ('Kiełbasa śląska 500g', 14.99),
+--     ('Jabłka 1kg', 4.99),
+--     ('Banany 1kg', 6.49),
+--     ('Ziemniaki 2kg', 5.99),
+--     ('Cukier 1kg', 5.49),
+--     ('Mąka pszenna 1kg', 4.29),
+--     ('Woda mineralna 1.5L', 2.19),
+--     ('Sok pomarańczowy 1L', 5.99),
+--     ('Kawa mielona 250g', 14.49),
+--     ('Herbata czarna 100 torebek', 10.99),
+--     ('Czekolada mleczna 100g', 3.99),
+--     ('Płatki kukurydziane 500g', 7.49),
+--     ('Szampon do włosów 400ml', 12.99),
+--     ('Papier toaletowy 8 rolek', 14.99),
+--     ('Płyn do naczyń 1L', 6.99),
+--     ('Proszek do prania 2kg', 24.99);
+
+-- INSERT INTO orders ("customer_id", "product_id", "quantity", "date") 
+-- VALUES 
+--     (1, 1, 2, '2025-03-10'),  -- Jan Kowalski buys 2x Mleko
+--     (2, 4, 1, '2025-03-11'),  -- Anna Nowak buys 1x Jajka 10 szt.
+--     (3, 6, 3, '2025-03-12'),  -- Piotr Wiśniewski buys 3x Jogurt naturalny
+--     (4, 10, 2, '2025-03-12'), -- Maria Lewandowska buys 2x Kiełbasa
+--     (5, 15, 1, '2025-03-13'), -- Tomasz Zieliński buys 1x Mąka
+--     (6, 8, 2, '2025-03-13'),  -- Katarzyna Jankowska buys 2x Ryż
+--     (7, 12, 3, '2025-03-14'), -- Marek Dąbrowski buys 3x Banany
+--     (8, 20, 1, '2025-03-14'), -- Magdalena Woźniak buys 1x Czekolada mleczna
+--     (9, 14, 2, '2025-03-15'), -- Robert Szymański buys 2x Cukier
+--     (10, 18, 1, '2025-03-15'), -- Aleksandra Mazur buys 1x Kawa mielona
+--     (11, 24, 1, '2025-03-16'), -- Kamil Wójcik buys 1x Proszek do prania
+--     (12, 7, 4, '2025-03-16'),  -- Agnieszka Lis buys 4x Makaron
+--     (13, 3, 2, '2025-03-17'),  -- Bartłomiej Pawlak buys 2x Masło
+--     (14, 11, 5, '2025-03-17'), -- Natalia Kaczmarek buys 5x Jabłka
+--     (15, 23, 1, '2025-03-18'), -- Damian Czarnecki buys 1x Papier toaletowy
+--     (16, 9, 2, '2025-03-18'),  -- Elżbieta Zawadzka buys 2x Kurczak filet
+--     (17, 5, 3, '2025-03-19'),  -- Patryk Stępień buys 3x Ser żółty
+--     (18, 21, 1, '2025-03-19'), -- Zofia Borkowska buys 1x Płatki kukurydziane
+--     (19, 16, 2, '2025-03-20'), -- Łukasz Głowacki buys 2x Woda mineralna
+--     (20, 13, 4, '2025-03-20'); -- Ewa Piątek buys 4x Ziemniaki
+
+
+-- SELECTING DATA FROM TABLES
+
+
+    -- DELETE FROM "orders"
+    -- WHERE "customer_id" = (SELECT "id" FROM customers
+    --     WHERE "name" LIKE 'ewa%'
+    -- );
+
+-- DELETE FROM "customers"
+-- WHERE "name" LIKE 'ewa%';
+
+-- DROP TRIGGER "cust_depo_update";
+-- DROP TRIGGER "pro_depo_update";
+
+-- ALTER TABLE "cust_depo"
+-- RENAME COLUMN "product_name" TO "customers_name"; 
+
+--  INSERT INTO "customers" ("name", "city", "zip")
+--     VALUES ('Ewa Piątek', 'Gdynia', '81-001');
+
+
+
+/* ADD ON DELETE CASCADE TO FOREIGN KEYS CONSTRAINT */
+-- ALTER TABLE orders
+-- RENAME TO orders_old;
+
+-- CREATE TABLE orders (
+--     "id" INTEGER,
+--     "customer_id" INTEGER NOT NULL,
+--     "product_id" INTEGER NOT NULL,
+--     "quantity" INTEGER NOT NULL,
+--     "date" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+--     PRIMARY KEY ("id" AUTOINCREMENT),
+--     FOREIGN KEY ("customer_id") REFERENCES "customers" ("id") ON DELETE CASCADE,
+--     FOREIGN KEY ("product_id") REFERENCES "products" ("id") ON DELETE CASCADE
+--     );
+
+-- INSERT INTO orders (id, customer_id, product_id, quantity, date)
+--     SELECT id, customer_id, product_id, quantity, date
+--     FROM orders_old;
+
+-- DROP TABLE orders_old;
+
+/* DELETE FROM PRODUCT TABLE */
+-- DELETE FROM products
+-- WHERE "name" LIKE 'woda%';
+
+-- INSERT INTO "products" ("name", "price")
+-- VALUES ('Tomato', 4.19);
+
+-- INSERT INTO "orders" ("customer_id", "product_id", "quantity")
+--     VALUES (19, 8, 2);
