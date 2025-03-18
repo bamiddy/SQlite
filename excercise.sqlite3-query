@@ -1,0 +1,30 @@
+-- database: ./excercise.db
+
+CREATE TABLE student (
+    "id" INTEGER,
+    "subject" TEXT NOT NULL,
+    "grade" NUMERIC NOT NULL DEFAULT 0, 
+    PRIMARY KEY("id" AUTOINCREMENT)
+);
+
+CREATE TABLE art (
+    "id" INTEGER,
+    "subject" TEXT NOT NULL,
+    "grade" NUMERIC NOT NULL DEFAULT 0, 
+    PRIMARY KEY("id" AUTOINCREMENT)
+);
+
+CREATE TABLE exam (
+    "id" INTEGER,
+    "student_id" INTERGER NOT NULL,
+    "science_id" INTERGER NOT NULL,
+    "art_id" INTERGER NOT NULL,
+    "date" TEXT NOT NULL DEFAULT CURRENT_DATE,
+    PRIMARY KEY("id" AUTOINCREMENT),
+    FOREIGN KEY("student_id") REFERENCES "student"("id"),
+    FOREIGN KEY("science_id") REFERENCES "science"("id"),
+    FOREIGN KEY("art_id") REFERENCES "art"("id")
+);
+
+CREATE TRIGGER update_exam
+AFTER INSERT ON 
