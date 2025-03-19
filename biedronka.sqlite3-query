@@ -194,3 +194,185 @@
 
 -- INSERT INTO "orders" ("customer_id", "product_id", "quantity")
 --     VALUES (19, 8, 2);
+
+
+-- CREATE VIEW
+
+-- CREATE VIEW "customer_products" AS
+-- SELECT c."name" AS "Customer Name", p."name" AS "Product Name"
+-- FROM "customers" c
+-- JOIN "orders" o ON c.id = o.customer_id
+-- JOIN "products" p ON o.product_id = p.id
+-- ORDER BY c."name";
+
+-- -- USING VIEW TO SIMPLIFY QUERY
+
+-- SELECT * FROM "customer_products"
+-- WHERE "Customer Name" = 'Jan Kowalski';
+
+-- USING QUERY TO AGGREGATE DATA
+
+-- CREATE VIEW "product_aggregate" AS
+-- SELECT p."name" AS "product_name", Sum(o."quantity") AS "Total Qnty", ROUND(AVG(p."price"), 2) AS "Avg Price"
+-- FROM "products" p 
+-- JOIN "orders" o ON p."id" = o."product_id"
+-- JOIN "customers" c ON o."customer_id" = c."id"
+-- GROUP BY p."name"
+-- ORDER BY "Total Qnty" DESC;
+
+-- -- check the view auto correction
+-- INSERT INTO "products" ("name", "price")
+-- VALUES ('Apple', 3.79),
+--         ('Orange', 2.99);
+
+-- INSERT INTO "orders" ("customer_id", "product_id", "quantity")
+-- VALUES (4, 27, 3),
+--         (9, 28, 2);
+
+
+
+-- -- SELECT TEMPORARY VIEW
+-- CREATE TEMPORARY VIEW "pro_by_city" AS
+-- SELECT c."city", p."name", o."quantity", ROUND(AVG(p."price")) AS "Avg Price"
+-- FROM customers c 
+-- JOIN orders o ON c."id" = o.customer_id
+-- JOIN products p ON o."product_id" = p."id"
+-- GROUP BY c."city", p."name"
+-- ORDER BY c."city" DESC;
+
+-- SELECT * FROM "pro_by_city";
+
+-- DROP VIEW "pro_by_city";
+
+-- CREATING CTES (COMMON TABLE EXPRESSIONS)
+-- WITH "p_b_c" AS (
+--     SELECT c."city", p."name", o."quantity", ROUND(AVG(p."price")) AS "Avg Price"
+--     FROM customers c 
+--     JOIN orders o ON c."id" = o.customer_id
+--     JOIN products p ON o."product_id" = p."id"
+--     GROUP BY c."city", p."name"
+--     ORDER BY c."city" DESC
+-- )
+-- SELECT city, COUNT(pbc."city") AS "CITY_COUNT", SUM(pbc."quantity") AS "PRODUCT_TOTAL", SUM(pbc."Avg Price") AS "AVG_PRICE"
+-- FROM "p_b_c" pbc
+-- GROUP BY "city";
+
+-- CREATING A PARTITIONED VIEW FOR DIFFERENT CITIES
+CREATE VIEW "poznan" AS 
+SELECT c.city, c."name", p."name", SUM(o."quantity") AS "Total Qnty"
+FROM "customers" c
+JOIN "orders" o ON c."id" = o."customer_id"
+JOIN "products" p ON o."product_id" = p."id"
+WHERE c."city" = 'Poznań'
+GROUP BY c."name", p."name";
+
+-- i can first test using the CTE to see if it works before creating a view.
+WITH "Lublin" AS (
+SELECT c.city, c."name", p."name", SUM(o."quantity") AS "Total Qnty"
+FROM "customers" c
+JOIN "orders" o ON c."id" = o."customer_id"
+JOIN "products" p ON o."product_id" = p."id"
+WHERE c."city" = 'Lublin'
+GROUP BY c."name", p."name")
+SELECT * FROM "Lublin";
+
+-- USING VIW TO SECURE SOME PART OF THE DATABASE
+-- In other DBMS, YOU Can use a query to hide some table while giving access to others, but not in SQLite.
+CREATE VIEW "custom" AS -- I will hide the customer name
+SELECT "id", "city", "zip", 'Anonymous' AS "name"
+FROM "customers";
+
+-- USING SOFT DELETING
+-- CREATE NEW COLUMN FOR CUSTOMERS AS DELETED
+ALTER TABLE "customers"
+ADD COLUMN "deleted" TEXT NOT NULL DEFAULT 0;
+
+-- CREATE A VIEW AS CURRENT CUSTOMERS WHERE DELETED IS NOT TRUE
+CREATE VIEW "current_customers" AS
+SELECT "id", "name", "city", "zip"
+FROM "customers"
+WHERE "deleted" = 0;
+
+-- soft delete a customer
+UPDATE "customers" SET "deleted" = 1
+WHERE "name" IN ('Tobi Bello', 'Tomasz Zieliński');
+
+-- TRY TO DELETE A CURRENT CUSTOMER
+DELETE FROM "current_customers"
+WHERE "name" = 'Anna Nowak';
+
+-- UPDATING THE UNDERLYING TABLE FOR A VIEW TO BE UPDATED. USING TRIGGER
+CREATE TRIGGER "delete_view"
+    INSTEAD OF DELETE ON "current_customers"
+    FOR EACH ROW
+    BEGIN
+        UPDATE "customers" SET "deleted" = 1
+        WHERE "id" = OLD."id";
+    END;
+
+
+-- I will use this to update the view when deleted customer is readded. using a condition to check if the customer is deleted or not.
+-- -- if not exist, it do nothing
+-- CREATE TRIGGER "insert_view" 
+--     INSTEAD OF INSERT ON "current_customers"
+--     FOR EACH ROW
+--     WHEN NEW."zip" IN ( -- when is used as a condition in triggers while WHERE is used in queries
+--         SELECT "zip" FROM "customers")
+--     BEGIN 
+--         UPDATE "customers" SET "deleted" = 0
+--         WHERE "zip" = NEW."zip";
+--     END;
+
+-- DROP TRIGGER "insert_view";
+
+
+-- THIS PERFORMS THE SAME FUNCTION AS ABOVE
+
+-- CREATE TRIGGER "insert_view" 
+-- INSTEAD OF INSERT ON "current_customers"
+-- FOR EACH ROW
+-- BEGIN 
+--     -- Only update if the ZIP exists in customers
+--     UPDATE "customers" 
+--     SET "deleted" = 0
+--     WHERE "zip" = NEW."zip"
+--     AND EXISTS (SELECT 1 FROM "customers" WHERE "zip" = NEW."zip");
+-- END;
+
+
+-- If exist in customers, update the deleted column to 0, if not, insert a new record into customers
+
+CREATE TRIGGER "insert_if_not_exist"
+     INSTEAD OF INSERT ON "current_customers"
+     FOR EACH ROW 
+     BEGIN
+     -- If ZIP exists, update the "deleted" column
+        UPDATE "customers" SET "deleted" = 0
+        WHERE "zip" = NEW."zip"; -- I cant use id, because i may not pass in the id when inserting a new record
+        -- i can add more conditions by using AND.
+    
+    -- If no rows were updated, insert a new record
+        INSERT INTO "customers" ("name", "city", "zip") -- deleted have default value of 0
+        SELECT NEW."name", NEW."city", NEW."zip"
+        WHERE NOT EXISTS (
+            SELECT 1 FROM "customers"
+            WHERE "zip" = NEW."zip"
+        );        
+    END;
+
+DROP TRIGGER "insert_if_not_exist";
+
+DELETE FROM "current_customers"
+WHERE "city" = 'Radom';
+
+SELECT * FROM "customers";
+-- 
+INSERT INTO "current_customers" ("name", "city", "zip")
+VALUES ('Umar raji', 'Berlin', '25-619');
+
+INSERT INTO "current_customers" ("name", "city", "zip")
+VALUES ('Zofia Borkowska', 'Radom', '26-600');
+
+-- I CAN DELETE MULTIPLE ROWS BECAUSE I HAVE "FOR EACH ROW" IN THE TRIGGER
+DELETE FROM "current_customers"
+WHERE "city" IN ('Radom', 'Berlin');
