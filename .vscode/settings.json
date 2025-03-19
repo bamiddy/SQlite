@@ -5,6 +5,12 @@
             "driver": "SQLite",
             "name": "Bamiddy",
             "database": "C:\\Users\\hp\\Documents\\Database\\sakila\\sakila.db"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "movie",
+            "database": "C:\\Users\\hp\\Documents\\src5\\src5\\index\\movies.db"
         }
     ]
 }
